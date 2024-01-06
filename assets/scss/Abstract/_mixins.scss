@@ -1,0 +1,16 @@
+@mixin font-size($lg-desktop, $desktop, $tablet, $mobile) {
+    font-size: #{$desktop};
+
+    @media screen and (min-width: 1920px) {
+        font-size: #{$lg-desktop};
+    }
+
+    @media screen and (max-width: 1024px) {
+        font-size:  #{$tablet};
+    }
+
+    @media screen and (max-width: 767px) {
+        font-size:  #{$mobile};
+    }
+}
+

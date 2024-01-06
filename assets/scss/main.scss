@@ -1,0 +1,9 @@
+/*Import mixins and variables*/
+@import "Abstract/_mixins.scss";
+
+/*Import pages and components*/
+
+@import "./pages/index.scss";
+@import "./components/mulitselect";
+@import "./components/form";
+@import "./components/table"

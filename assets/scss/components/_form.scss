@@ -1,0 +1,45 @@
+.form {
+    border: 3px solid #ddd;
+
+    .form__group {
+        margin-bottom: 20px;
+
+        .form__label {
+            @include font-size(18px, 16px, 16px, 14px);
+
+            &.form__label--required {
+                position: relative;
+
+                &::after {
+                    content: "*";
+                    color: rgb(138, 50, 50);
+                    position: absolute;
+                    right: -10px;
+                }
+            }
+        }
+
+        .form__contorl {
+            width: 100%;
+            margin-top: 10px;
+            border: 1px solid #e8e8e8;
+            padding: 8px 40px 10px 8px;
+            min-height: 40px;
+            border-radius: 5px;
+
+            &::placeholder {
+                color: #adadad;
+                display: inline-block;
+                font-size:14px;
+            }
+        }
+
+        .form-error {
+            color: rgb(138, 50, 50);
+            @include font-size(14px, 12px, 12px, 10px);
+            margin-top: 6px;
+
+        }
+    }
+
+}

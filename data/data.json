@@ -1,0 +1,38 @@
+[{
+    "label": "Main Category",
+    "id": "category",
+    "userId": "userCategory",
+    "options": "categories",
+    "required": true
+
+}, {
+    "label": "Sub Category",
+    "id": "subCategory",
+    "userId": "userSubCategory",
+    "options": "subCategories",
+    "required": true
+}, {
+    "label": "Process Type",
+    "id": "processType",
+    "userId": "userProcessType",
+    "options": "processTypes",
+    "required": false
+}, {
+    "label": "Brand",
+    "id": "brand",
+    "userId": "userBrand",
+    "options": "brands",
+    "required": false
+}, {
+    "label": "Model",
+    "id": "model",
+    "userId": "userModel",
+    "options": "models",
+    "required": false
+}, {
+    "label": "Type",
+    "id": "type",
+    "userId": "userType",
+    "options": "types",
+    "required": false
+}]
