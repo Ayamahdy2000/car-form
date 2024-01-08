@@ -1,34 +1,42 @@
 <template>
   <form class="form p-5 mt-5">
     <div class="form__group" v-for="(item, index) in form" :key="index">
-      <label
-        class="form__label"
-        :class="item.required ? 'form__label--required' : ''"
-        >{{ item.label }}</label
+      <div
+        v-if="
+          item.condition
+            ? state.form[item.condition] != null && state.form[item.condition].id != ''
+            : ' '
+        "
       >
-      <multiselect
-        trackBy="id"
-        v-model="state.form[item.id]"
-        label="name"
-        :options="options[item.options]"
-        :searchable="true"
-        :show-labels="false"
-        @close="v$.form[item.id].$touch"
-      >
-      </multiselect>
-      <div class="form-error" v-if="v$.form[item.id].$error">
-        {{ item.label }} is required
-      </div>
-      <input
-        v-if="state.form[item.id]?.id == ''"
-        class="form__contorl"
-        type="text"
-        placeholder="From user"
-        v-model="state.form[item.userId]"
-        @blur="v$.form[item.userId].$touch"
-      />
-      <div class="form-error" v-if="v$.form[item.userId].$error">
-        Field is required
+        <label
+          class="form__label"
+          :class="item.required ? 'form__label--required' : ''"
+          >{{ item.label }}</label
+        >
+        <multiselect
+          trackBy="id"
+          v-model="state.form[item.id]"
+          label="name"
+          :options="options[item.options]"
+          :searchable="true"
+          :show-labels="false"
+          @close="v$.form[item.id].$touch"
+        >
+        </multiselect>
+        <div class="form-error" v-if="v$.form[item.id].$error">
+          {{ item.label }} is required
+        </div>
+        <input
+          v-if="state.form[item.id]?.id == ''"
+          class="form__contorl"
+          type="text"
+          placeholder="From user"
+          v-model="state.form[item.userId]"
+          @blur="v$.form[item.userId].$touch"
+        />
+        <div class="form-error" v-if="v$.form[item.userId].$error">
+          Field is required
+        </div>
       </div>
     </div>
     <button
@@ -206,19 +214,17 @@ export default {
             name: "Other",
           },
         ];
-      }
-      else{
-        this.options.subCategories = []
-        this.state.form.subCategory = null
+      } else {
+        this.options.subCategories = [];
+        this.state.form.subCategory = null;
       }
     },
     getSubCategory(newVal) {
       if (newVal && newVal.id != "") {
         this.getProps(newVal.id);
-      }else{
-        this.options.processTypes = []
-        this.state.form.processType = null
-
+      } else {
+        this.options.processTypes = [];
+        this.state.form.processType = null;
       }
     },
     getProcessType(newVal) {
@@ -230,20 +236,17 @@ export default {
             name: "Other",
           },
         ];
-      }
-      else{
-        this.options.brands = []
-        this.state.form.brand = null
-
+      } else {
+        this.options.brands = [];
+        this.state.form.brand = null;
       }
     },
     getBrands(newVal) {
       if (newVal && newVal.id != "") {
         this.getOptions(newVal.id);
-      }else{
-        this.options.models = []
-        this.state.form.model = null
-
+      } else {
+        this.options.models = [];
+        this.state.form.model = null;
       }
     },
     getModel(newVal) {
@@ -255,10 +258,9 @@ export default {
             name: "Other",
           },
         ];
-      }else{
-        this.options.types = []
-        this.state.form.t = null
-
+      } else {
+        this.options.types = [];
+        this.state.form.t = null;
       }
     },
   },

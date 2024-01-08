@@ -10,11 +10,13 @@
     "id": "subCategory",
     "userId": "userSubCategory",
     "options": "subCategories",
+    "condition":"category",
     "required": true
 }, {
     "label": "Process Type",
     "id": "processType",
     "userId": "userProcessType",
+    "condition":"subCategory",
     "options": "processTypes",
     "required": false
 }, {
@@ -22,17 +24,23 @@
     "id": "brand",
     "userId": "userBrand",
     "options": "brands",
+    "condition":"processType",
+
     "required": false
 }, {
     "label": "Model",
     "id": "model",
     "userId": "userModel",
     "options": "models",
+    "condition":"brand",
+
     "required": false
 }, {
     "label": "Type",
     "id": "type",
     "userId": "userType",
     "options": "types",
+    "condition":"model",
+
     "required": false
 }]
