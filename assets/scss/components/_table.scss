@@ -1,4 +1,15 @@
+.table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+
+}
+
 table {
+
+    max-width: 100%;
+    overflow: auto;
+
     thead {
         th {
             background-color: #ddd;
