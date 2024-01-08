@@ -1,13 +1,7 @@
 <template>
   <form class="form p-5 mt-5">
     <div class="form__group" v-for="(item, index) in form" :key="index">
-      <div
-        v-if="
-          item.condition
-            ? state.form[item.condition] != null && state.form[item.condition].id != ''
-            : ' '
-        "
-      >
+      <div>
         <label
           class="form__label"
           :class="item.required ? 'form__label--required' : ''"
@@ -17,13 +11,16 @@
           trackBy="id"
           v-model="state.form[item.id]"
           label="name"
-          :options="options[item.options]"
+          :options="
+            item.level == 'first' ? options[item.options] : item.options
+          "
           :searchable="true"
           :show-labels="false"
-          @close="v$.form[item.id].$touch"
+          @select="select($event, item.level, index, item.label)"
+          @close="item.required ? v$.form[item.id].$touch : ''"
         >
         </multiselect>
-        <div class="form-error" v-if="v$.form[item.id].$error">
+        <div class="form-error" v-if="item.required && v$.form[item.id].$error">
           {{ item.label }} is required
         </div>
         <input
@@ -31,14 +28,17 @@
           class="form__contorl"
           type="text"
           placeholder="From user"
+          @input="userInput(item.id, item.userId)"
           v-model="state.form[item.userId]"
-          @blur="v$.form[item.userId].$touch"
         />
-        <div class="form-error" v-if="v$.form[item.userId].$error">
-          Field is required
-        </div>
       </div>
     </div>
+    <img
+      src="../../assets/images/spinner.gif"
+      v-if="isLoading"
+      class="h-30 w-30 flex mx-auto"
+      alt="loading"
+    />
     <button
       class="bg-cyan-500 p-3 px-5 w-full sm:w-60"
       @click.prevent="submitData()"
@@ -60,64 +60,123 @@ export default {
   },
   data() {
     return {
-      form: data,
+      form: [...data],
+      secondForm: [],
+      isLoading: false,
       options: {
-        categories: [
-          {
-            id: "",
-            name: "Other",
-          },
-        ],
+        categories: [],
         subCategories: [],
-        processTypes: [],
-        brands: [],
-        models: [],
-        types: [],
       },
     };
   },
   methods: {
     getCategories() {
+      this.isLoading = true;
       getAllCategories()
         .then((res) => {
           this.options.categories = [
             ...res.data.data.categories,
             ...this.options.categories,
           ];
+          this.isLoading = false;
         })
-        .catch(() => {});
+        .catch(() => {
+          this.isLoading = false;
+        });
     },
     getProps(id) {
+      this.isLoading = true;
+      this.form = [...data];
       getAllProps(id)
         .then((res) => {
-          this.options.processTypes = [
-            ...res.data.data,
-            {
-              id: "",
-              name: "Other",
-            },
-          ];
+          let arr = res.data.data;
+          arr.forEach((el) => {
+            el.options = [
+              {
+                id: "",
+                name: "Other",
+              },
+              ...el.options,
+            ];
+            let obj = {
+              label: el.name,
+              id: el.name.replaceAll(" ", ""),
+              userId: el.name.replaceAll(" ", "") + "User",
+              options: el.options,
+              required: false,
+              level: "second",
+            };
+            this.form.push(obj);
+            this.isLoading = false;
+          });
+          this.secondForm = [...this.form];
         })
-        .catch(() => {});
+
+        .catch(() => {
+          this.isLoading = false;
+        });
     },
-    getOptions(id) {
+    getOptions(id, index) {
+      this.isLoading = true;
+
       getAllOptions(id)
         .then((res) => {
-          this.options.models = [
-            ...res.data.data,
-            {
-              id: "",
-              name: "Other",
-            },
+          let arr = res.data.data;
+          let options = [];
+          this.form = [...this.secondForm];
+          arr.forEach((el) => {
+            el.options = [
+              {
+                id: "",
+                name: "Other",
+              },
+              ...el.options,
+            ];
+
+            let obj = {
+              label: el.name,
+              id: el.name.replaceAll(" ", ""),
+              userId: el.name.replaceAll(" ", "") + "User",
+              options: el.options,
+              required: false,
+              level: "third",
+              num: el.id,
+            };
+            options.push(obj);
+            this.isLoading = false;
+          });
+          this.form = [
+            ...this.form.slice(0, index + 1),
+            ...options,
+            ...this.form.slice(index + 1),
           ];
+          this.isLoading = false;
         })
-        .catch(() => {});
+        .catch(() => {
+          this.isLoading = false;
+        });
     },
     submitData() {
       this.v$.$validate();
       if (!this.v$.$error) {
         this.$emit("getformData", this.state.form);
       }
+    },
+    select(e, level, index, name) {
+      e.parent = name;
+      if (e.id != "") {
+        if (level == "second") {
+          this.getOptions(e.id, index);
+        }
+      } else {
+        if (level == "second") {
+          this.form = [...this.secondForm];
+        } 
+      }
+    },
+    userInput(id, userId) {
+     
+      this.state.form[id].userInput = this.state.form[userId]
     },
   },
   mounted() {
@@ -130,72 +189,19 @@ export default {
     getSubCategory() {
       return this.state.form.subCategory;
     },
-    getProcessType() {
-      return this.state.form.processType;
-    },
-    getBrands() {
-      return this.state.form.brand;
-    },
-    getModel() {
-      return this.state.form.model;
-    },
   },
   setup() {
     const state = reactive({
       form: {
         category: null,
-        userCategory: null,
         subCategory: null,
-        processType: null,
-        userProcessType: null,
-        brand: null,
-        model: null,
-        userModel: null,
-        type: null,
-        userType: null,
       },
     });
     const rules = {
       form: {
         category: { required },
         subCategory: {
-          requiredIf: requiredIf(function () {
-            return this.state.form.category?.id != "";
-          }),
-        },
-        processType: {},
-        brand: {},
-        userBrand: {
-          requiredIf: requiredIf(function () {
-            return this.state.form.brand?.id == "";
-          }),
-        },
-        model: {},
-        userModel: {
-          requiredIf: requiredIf(function () {
-            return this.state.form.model?.id == "";
-          }),
-        },
-        type: {},
-        userType: {
-          requiredIf: requiredIf(function () {
-            return this.state.form.type?.id == "";
-          }),
-        },
-        userCategory: {
-          requiredIf: requiredIf(function () {
-            return this.state.form.category?.id == "";
-          }),
-        },
-        userSubCategory: {
-          requiredIf: requiredIf(function () {
-            return this.state.form.subCategory?.id == "";
-          }),
-        },
-        userProcessType: {
-          requiredIf: requiredIf(function () {
-            return this.state.form.processType?.id == "";
-          }),
+          required,
         },
       },
     };
@@ -206,61 +212,16 @@ export default {
   },
   watch: {
     getCategory(newVal) {
-      if (newVal && newVal && newVal.id != "") {
-        this.options.subCategories = [
-          ...newVal.children,
-          {
-            id: "",
-            name: "Other",
-          },
-        ];
+      if (newVal) {
+        this.options.subCategories = [...newVal.children];
       } else {
         this.options.subCategories = [];
         this.state.form.subCategory = null;
       }
     },
     getSubCategory(newVal) {
-      if (newVal && newVal.id != "") {
+      if (newVal) {
         this.getProps(newVal.id);
-      } else {
-        this.options.processTypes = [];
-        this.state.form.processType = null;
-      }
-    },
-    getProcessType(newVal) {
-      if (newVal && newVal.id != "") {
-        this.options.brands = [
-          ...newVal.options,
-          {
-            id: "",
-            name: "Other",
-          },
-        ];
-      } else {
-        this.options.brands = [];
-        this.state.form.brand = null;
-      }
-    },
-    getBrands(newVal) {
-      if (newVal && newVal.id != "") {
-        this.getOptions(newVal.id);
-      } else {
-        this.options.models = [];
-        this.state.form.model = null;
-      }
-    },
-    getModel(newVal) {
-      if (newVal && newVal.id != "") {
-        this.options.types = [
-          ...newVal.options,
-          {
-            id: "",
-            name: "Other",
-          },
-        ];
-      } else {
-        this.options.types = [];
-        this.state.form.t = null;
       }
     },
   },
